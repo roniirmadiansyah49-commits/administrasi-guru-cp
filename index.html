@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administrasi Guru Otomatis Berbasis CP</title>
+    <style>
+      :root {
+        --bg: #f3f7fb;
+        --panel: #ffffff;
+        --panel-soft: #eef5ff;
+        --primary: #2e6bf2;
+        --primary-strong: #1f4fcb;
+        --primary-soft: #eaf1ff;
+        --success: #1f9d74;
+        --success-soft: #eafaf4;
+        --warning: #d59216;
+        --warning-soft: #fff8e7;
+        --danger: #d94a4a;
+        --danger-soft: #fff0f0;
+        --text: #1d2a3a;
+        --muted: #5d6b7a;
+        --border: #dfe7f0;
+        --shadow: 0 12px 28px rgba(17, 28, 45, 0.08);
+        --radius: 18px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--text); }
+      body { min-height: 100vh; }
+      button, input, select, textarea { font: inherit; }
+      a { color: inherit; text-decoration: none; }
+
+      .app {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: linear-gradient(180deg, #f7faff 0%, #edf4ff 100%);
+        border-right: 1px solid var(--border);
+        padding: 18px 14px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 8px 16px 8px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary) 0%, #67a1ff 100%);
+        color: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .brand small {
+        display: block;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .nav-item {
+        border: 1px solid transparent;
+        background: transparent;
+        width: 100%;
+        border-radius: 12px;
+        text-align: left;
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .nav-item:hover {
+        background: rgba(46, 107, 242, 0.06);
+        border-color: rgba(46, 107, 242, 0.1);
+      }
+
+      .nav-item.active {
+        background: var(--primary-soft);
+        border-color: rgba(46, 107, 242, 0.18);
+        color: var(--primary-strong);
+        font-weight: 700;
+      }
+
+      .nav-item .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-idx {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: #edf3ff;
+        color: var(--primary);
+        font-size: 0.74rem;
+        font-weight: 700;
+      }
+
+      .nav-item.active .nav-idx {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .nav-status {
+        font-size: 0.72rem;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .nav-item.locked {
+        opacity: 0.56;
+        cursor: not-allowed;
+      }
+
+      .nav-summary {
+        margin-top: 18px;
+        background: rgba(255,255,255,0.7);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .nav-summary h4 {
+        margin: 0 0 12px 0;
+        font-size: 0.9rem;
+      }
+
+      .progress-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .progress-bar {
+        flex: 1;
+        height: 10px;
+        background: #e7edf7;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), #6ea4ff);
+        transition: width 0.2s ease;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary-strong);
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+
+      .main {
+        padding: 18px 18px 32px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(243,247,251,0.72);
+        backdrop-filter: blur(8px);
+        padding-bottom: 14px;
+      }
+
+      .topbar-inner {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        border-radius: 18px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .title-wrap h2 { margin: 0; font-size: 1.25rem; }
+      .title-wrap p { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); }
+      .btn.primary {
+        background: linear-gradient(135deg, var(--primary) 0%, #5f96ff 100%);
+        color: #fff;
+        box-shadow: 0 10px 18px rgba(46,107,242,0.22);
+      }
+      .btn.secondary {
+        background: #edf3ff;
+        color: var(--primary-strong);
+        border: 1px solid rgba(46,107,242,0.15);
+      }
+      .btn.success {
+        background: var(--success-soft);
+        color: var(--success);
+        border: 1px solid rgba(31,157,116,0.14);
+      }
+      .btn.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+        border: 1px solid rgba(213,146,22,0.18);
+      }
+      .btn.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border: 1px solid rgba(217,74,74,0.12);
+      }
+      .btn.ghost {
+        background: #f7f9fc;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .workspace {
+        margin-top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(10, minmax(120px, 1fr));
+        gap: 10px;
+        overflow-x: auto;
+      }
+
+      .step {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 12px;
+        min-height: 92px;
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .step.done {
+        background: linear-gradient(180deg, #edfdf5 0%, #ebfaf4 100%);
+        border-color: rgba(31,157,116,0.22);
+      }
+      .step.current {
+        border-color: rgba(46,107,242,0.28);
+        box-shadow: 0 0 0 3px rgba(46,107,242,0.08);
+        background: linear-gradient(180deg, #f4f8ff 0%, #edf4ff 100%);
+      }
+      .step.locked { opacity: 0.56; cursor: not-allowed; }
+
+      .step-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .step-index {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        background: #edf3ff;
+        color: var(--primary);
+      }
+      .step.done .step-index {
+        background: var(--success);
+        color: #fff;
+      }
+      .step.current .step-index {
+        background: var(--primary);
+        color: #fff;
+      }
+      .step-title { margin-top: 8px; font-size: 0.82rem; font-weight: 700; }
+      .step-status { font-size: 0.72rem; color: var(--muted); }
+      .step.done .step-status { color: var(--success); font-weight: 700; }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.9fr;
+        gap: 18px;
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .field label {
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .field input, .field select, .field textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fff;
+        color: var(--text);
+      }
+      .field textarea {
+        min-height: 88px;
+        resize: vertical;
+      }
+      .field input:focus, .field select:focus, .field textarea:focus {
+        outline: none;
+        border-color: rgba(46, 107, 242, 0.36);
+        box-shadow: 0 0 0 3px rgba(46,107,242,0.08);
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 12px;
+      }
+
+      .summary-box {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f7faff 0%, #eef5ff 100%);
+        padding: 14px;
+      }
+      .summary-box .label { font-size: 0.72rem; color: var(--muted); }
+      .summary-box .value { margin-top: 8px; font-size: 1.3rem; font-weight: 800; }
+      .summary-box .trend { margin-top: 6px; color: var(--success); font-size: 0.74rem; font-weight: 700; }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .section-head h3 { margin: 0; font-size: 1.08rem; }
+      .stage-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+      .notice {
+        background: #edf5ff;
+        color: #234a9a;
+        border: 1px solid rgba(46,107,242,0.15);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+      }
+      .notice.success { background: var(--success-soft); color: var(--success); border-color: rgba(31,157,116,0.16); }
+      .notice.warning { background: var(--warning-soft); color: var(--warning); border-color: rgba(213,146,22,0.18); }
+      .notice.error { background: var(--danger-soft); color: var(--danger); border-color: rgba(217,74,74,0.18); }
+
+      .upload-box {
+        border: 1.5px dashed rgba(46, 107, 242, 0.4);
+        background: linear-gradient(180deg, #f8fbff 0%, #f1f6ff 100%);
+        border-radius: 16px;
+        padding: 18px;
+        min-height: 110px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      .file-name {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .muted { color: var(--muted); }
+
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-top: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+      }
+      th, td {
+        border-bottom: 1px solid var(--border);
+        padding: 10px 12px;
+        vertical-align: top;
+        text-align: left;
+      }
+      th {
+        background: #f6f9ff;
+        color: #2b4265;
+        font-size: 0.78rem;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      tbody tr:hover { background: #fafcff; }
+      td input, td select, td textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        padding: 8px 10px;
+        color: var(--text);
+      }
+      td textarea { min-height: 56px; resize: vertical; }
+      .row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+      .loading {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary);
+        font-weight: 700;
+      }
+      .loading.visible { display: inline-flex; }
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(46,107,242,0.2);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .print-header {
+        display: none;
+      }
+
+      @media (max-width: 1040px) {
+        .app { grid-template-columns: 1fr; }
+        .sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+        .hero-grid { grid-template-columns: 1fr; }
+        .stepper { grid-template-columns: repeat(5, minmax(150px, 1fr)); }
+      }
+
+      @media (max-width: 720px) {
+        .topbar-inner { display: block; }
+        .toolbar { margin-top: 10px; }
+        .toolbar .btn { flex: 1 1 auto; }
+        .profile-grid, .summary-grid { grid-template-columns: 1fr; }
+      }
+
+      @media print {
+        body { background: #fff; }
+        .sidebar, .topbar, .toolbar, .stage-actions, .row-actions, .btn, .upload-box, .loading, .notice { display: none !important; }
+        .main { padding: 0; }
+        .workspace { gap: 10px; }
+        .panel, .card { box-shadow: none; border: 1px solid #d9dfe8; }
+        .print-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          border-bottom: 1px solid #cfd8e3;
+          padding-bottom: 12px;
+          margin-bottom: 18px;
+        }
+        .print-header .school {
+          font-size: 16px;
+          font-weight: 800;
+        }
+        .sign-box {
+          width: 140px;
+          height: 60px;
+          border: 1px solid #d5dce7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          color: #687788;
+        }
+        @page { size: A4 portrait; margin: 12mm; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">CP</div>
+          <div>
+            <h1>Guru Otomatis</h1>
+            <small>Administrasi berbasis CP</small>
+          </div>
+        </div>
+
+        <nav id="nav" class="nav"></nav>
+
+        <div class="nav-summary">
+          <h4>Progress</h4>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="sideProgress"></div></div>
+            <span class="pill" id="sideProgressText">0%</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="topbar-inner">
+            <div class="title-wrap">
+              <h2 id="pageTitle">Beranda</h2>
+              <p id="pageSubtitle">Persiapan administrasi guru otomatis</p>
+            </div>
+            <div class="toolbar">
+              <button class="btn secondary" id="backupBtn">Backup JSON</button>
+              <button class="btn secondary" id="importBtn">Impor JSON</button>
+              <button class="btn primary" id="generateAllBtn">Generate Semua</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="workspace" class="workspace"></div>
+      </main>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'administrasi_guru_cp_v1';
+      const ANTHROPIC_API_KEY = ''; // isi jika ingin pakai API Anthropic langsung
+      const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
+
+      const STAGES = [
+        'Analisis CP',
+        'Tujuan Pembelajaran',
+        'ATP',
+        'Prota',
+        'Promes',
+        'Asesmen Diagnostik',
+        'Kisi-kisi Formatif',
+        'Kisi-kisi STS',
+        'Kisi-kisi SAS',
+        'RPP Pembelajaran Mendalam'
+      ];
+
+      const DOC_KEYS = [
+        'analisisCp',
+        'tp',
+        'atp',
+        'prota',
+        'promes',
+        'diagnostik',
+        'kisiFormatif',
+        'kisiSts',
+        'kisiSas',
+        'rpp'
+      ];
+
+      const defaultState = {
+        profile: {
+          nama: '',
+          nip: '',
+          sekolah: '',
+          kepalaSekolah: '',
+          tahunAjaran: '2025/2026',
+          semester: 'Ganjil',
+          kelas: '3',
+          mataPelajaran: 'Matematika',
+          fase: 'B'
+        },
+        cp: {
+          rawText: '',
+          fileName: '',
+          sourceType: 'teks',
+          uploadedAt: ''
+        },
+        docs: {
+          analisisCp: [],
+          tp: [],
+          atp: [],
+          prota: [],
+          promes: [],
+          diagnostik: [],
+          kisiFormatif: [],
+          kisiSts: [],
+          kisiSas: [],
+          rpp: []
+        },
+        stageStatus: {
+          0: 'current',
+          1: 'locked',
+          2: 'locked',
+          3: 'locked',
+          4: 'locked',
+          5: 'locked',
+          6: 'locked',
+          7: 'locked',
+          8: 'locked',
+          9: 'locked'
+        },
+        settings: {
+          weeksEffective: 18,
+          weeksHoliday: 2,
+          apiKey: ANTHROPIC_API_KEY,
+          calendarMonths: ['Juli','Agustus','September','Oktober','November','Desember','Januari','Februari','Maret','April','Mei','Juni'],
+          assessmentDays: ['UH', 'UTS', 'UAS']
+        },
+        meta: {
+          lastSavedAt: ''
+        }
+      };
+
+      let state = loadState();
+      let currentStage = 0;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return structuredClone(defaultState);
+          }
+          const parsed = JSON.parse(raw);
+          return mergeDeep(structuredClone(defaultState), parsed);
+        } catch (error) {
+          console.error('Gagal load state:', error);
+          return structuredClone(defaultState);
+        }
+      }
+
+      function saveState() {
+        state.meta.lastSavedAt = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function mergeDeep(target, source) {
+        for (const key in source) {
+          if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            if (!target[key]) target[key] = {};
+            target[key] = mergeDeep(target[key], source[key]);
+          } else {
+            target[key] = source[key];
+          }
+        }
+        return target;
+      }
+
+      function uid(prefix = 'id') {
+        return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function getCurrentPhase() {
+        const kelas = Number(state.profile.kelas || 0);
+        if (kelas >= 1 && kelas <= 2) return 'A';
+        if (kelas >= 3 && kelas <= 4) return 'B';
+        if (kelas >= 5 && kelas <= 6) return 'C';
+        return 'B';
+      }
+
+      function stageUnlocked(index) {
+        if (index === 0) return true;
+        return state.stageStatus[index - 1] === 'done' || state.stageStatus[index - 1] === 'success';
+      }
+
+      function setStageStatus(index, status) {
+        state.stageStatus[index] = status;
+        if (status === 'done' && index < STAGES.length - 1) {
+          if (!state.stageStatus[index + 1] || state.stageStatus[index + 1] === 'locked') {
+            state.stageStatus[index + 1] = 'ready';
+          }
+        }
+        saveState();
+      }
+
+      function calculateProgress() {
+        const total = STAGES.length;
+        let done = 0;
+        Object.values(state.stageStatus).forEach((s) => {
+          if (s === 'done' || s === 'success') done += 1;
+        });
+        return Math.round((done / total) * 100);
+      }
+
+      function renderNav() {
+        const nav = document.getElementById('nav');
+        if (!nav) return;
+        nav.innerHTML = STAGES.map((label, index) => {
+          const status = state.stageStatus[index] || 'locked';
+          const classes = ['nav-item'];
+          if (index === currentStage) classes.push('active');
+          if (!stageUnlocked(index)) classes.push('locked');
+          const statusLabel = {
+            current: '…',
+            ready: '⏱',
+            done: '✓',
+            success: '✓',
+            locked: '🔒',
+            pending: '…'
+          }[status] || '…';
+
+          return `
+            <button type="button" class="${classes.join(' ')}" data-index="${index}" ${!stageUnlocked(index) ? 'disabled' : ''}>
+              <span class="left">
+                <span class="nav-idx">${index + 1}</span>
+                <span>${label}</span>
+              </span>
+              <span class="nav-status">${statusLabel}</span>
+            </button>
+          `;
+        }).join('');
+
+        nav.querySelectorAll('[data-index]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.index);
+            if (stageUnlocked(idx)) {
+              currentStage = idx;
+              render();
+            }
+          });
+        });
+      }
+
+      function renderProgress() {
+        const pct = calculateProgress();
+        const fill = document.getElementById('sideProgress');
+        const text = document.getElementById('sideProgressText');
+        if (fill) fill.style.width = `${pct}%`;
+        if (text) text.textContent = `${pct}%`;
+      }
+
+      function updateHeaderText() {
+        const title = document.getElementById('pageTitle');
+        const subtitle = document.getElementById('pageSubtitle');
+        if (title) title.textContent = STAGES[currentStage];
+        if (subtitle) subtitle.textContent = `Tahap ${currentStage + 1} dari ${STAGES.length}`;
+      }
+
+      function render() {
+        renderNav();
+        renderProgress();
+        updateHeaderText();
+        renderWorkspace();
+        saveState();
+      }
+
+      function renderWorkspace() {
+        const workspace = document.getElementById('workspace');
+        if (!workspace) return;
+
+        workspace.innerHTML = `
+          <div class="stepper" id="stepper"></div>
+          <div class="hero-grid">
+            <div class="panel">
+              <div class="section-head">
+                <h3>Profil Guru</h3>
+              </div>
+              <div class="profile-grid">
+                <div class="field"><label>Nama</label><input id="profileNama" value="${escapeHtml(state.profile.nama)}" /></div>
+                <div class="field"><label>NIP</label><input id="profileNip" value="${escapeHtml(state.profile.nip)}" /></div>
+                <div class="field"><label>Sekolah</label><input id="profileSekolah" value="${escapeHtml(state.profile.sekolah)}" /></div>
+                <div class="field"><label>Kepala Sekolah</label><input id="profileKepala" value="${escapeHtml(state.profile.kepalaSekolah)}" /></div>
+                <div class="field"><label>Tahun Ajaran</label><input id="profileTahun" value="${escapeHtml(state.profile.tahunAjaran)}" /></div>
+                <div class="field"><label>Semester</label>
+                  <select id="profileSemester">
+                    <option value="Ganjil" ${state.profile.semester === 'Ganjil' ? 'selected' : ''}>Ganjil</option>
+                    <option value="Genap" ${state.profile.semester === 'Genap' ? 'selected' : ''}>Genap</option>
+                  </select>
+                </div>
+                <div class="field"><label>Kelas</label><input id="profileKelas" value="${escapeHtml(state.profile.kelas)}" /></div>
+                <div class="field"><label>Mata Pelajaran</label><input id="profileMapel" value="${escapeHtml(state.profile.mataPelajaran)}" /></div>
+                <div class="field"><label>Fase</label>
+                  <select id="profileFase">
+                    <option value="A" ${state.profile.fase === 'A' ? 'selected' : ''}>A</option>
+                    <option value="B" ${state.profile.fase === 'B' ? 'selected' : ''}>B</option>
+                    <option value="C" ${state.profile.fase === 'C' ? 'selected' : ''}>C</option>
+                  </select>
+                </div>
+              </div>
+              <div class="stage-actions" style="margin-top: 12px;">
+                <button class="btn primary" id="saveProfileBtn">Simpan Profil</button>
+                <button class="btn secondary" id="validateBtn">Validasi</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <h3>Ringkasan</h3>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-box">
+                  <div class="label">Minggu Efektif</div>
+                  <div class="value">${state.settings.weeksEffective}</div>
+                  <div class="trend">Kalender</div>
+                </div>
+                <div class="summary-box">
+                  <div class="label">JP ATP</div>
+                  <div class="value">${sumJp(state.docs.atp)}</div>
+                  <div class="trend">Akhir</div>
+                </div>
+                <div class="summary-box">
+                  <div class="label">TP</div>
+                  <div class="value">${state.docs.tp.length}</div>
+                  <div class="trend">Dokumen</div>
+                </div>
+                <div class="summary-box">
+                  <div class="label">Status</div>
+                  <div class="value">${progressStatus()}</div>
+                  <div class="trend">Progres</div>
+                </div>
+              </div>
+              <div class="stage-actions" style="margin-top: 12px;">
+                <button class="btn secondary" id="printBtn">Cetak PDF</button>
+                <button class="btn warning" id="exportCsvBtn">CSV/Excel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            ${buildStageMarkup(currentStage)}
+          </div>
+        `;
+
+        renderStepper();
+        bindStageEvents();
+        bindProfileActions();
+      }
+
+      function renderStepper() {
+        const stepper = document.getElementById('stepper');
+        if (!stepper) return;
+        stepper.innerHTML = STAGES.map((label, index) => {
+          const status = state.stageStatus[index] || 'locked';
+          const isCurrent = index === currentStage;
+          const isDone = status === 'done' || status === 'success';
+          const isLocked = !stageUnlocked(index) && !isCurrent && !isDone;
+          const classes = ['step'];
+          if (isCurrent) classes.push('current');
+          if (isDone) classes.push('done');
+          if (isLocked) classes.push('locked');
+          return `
+            <div class="${classes.join(' ')}" data-step-index="${index}">
+              <div class="step-head">
+                <span>${label}</span>
+                <span class="step-index">${index + 1}</span>
+              </div>
+              <div class="step-title">${isCurrent ? 'Aktif' : isDone ? 'Selesai' : isLocked ? 'Terkunci' : 'Siap'}</div>
+              <div class="step-status">${isCurrent ? 'Sedang diproses' : isDone ? 'Lengkap' : isLocked ? 'Belum terbuka' : 'Menunggu'}</div>
+            </div>
+          `;
+        }).join('');
+
+        stepper.querySelectorAll('[data-step-index]').forEach((node) => {
+          node.addEventListener('click', () => {
+            const idx = Number(node.dataset.stepIndex);
+            if (stageUnlocked(idx)) {
+              currentStage = idx;
+              render();
+            }
+          });
+        });
+      }
+
+      function buildStageMarkup(stageIndex) {
+        const map = {
+          0: stageAnalisisCp(),
+          1: stageTujuanPembelajaran(),
+          2: stageAtp(),
+          3: stageProta(),
+          4: stagePromes(),
+          5: stageDiagnostik(),
+          6: stageFormatif(),
+          7: stageSts(),
+          8: stageSas(),
+          9: stageRpp()
+        };
+        return map[stageIndex] || '';
+      }
+
+      function stageAnalisisCp() {
+        const rows = state.docs.analisisCp.length ? state.docs.analisisCp : [
+          { id: uid('cp'), elemen: 'Elemen CP', kompetensi: 'Menyebutkan dan menjelaskan konsep dasar', materi: 'Materi inti sesuai CP', kataKerja: 'menjelaskan, menyebutkan, membandingkan' }
+        ];
+
+        return `
+          <div class="section-head">
+            <h3>1. Analisis CP</h3>
+            <div class="stage-actions">
+              <button class="btn secondary" id="uploadCpBtn">Unggah CP</button>
+              <button class="btn primary" data-stage="0" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+
+          <div id="cpNotice" class="notice info">Unggah file CP (PDF, DOCX, atau teks) lalu klik Generate untuk membuat analisis.</div>
+
+          <input id="cpFileInput" type="file" accept=".pdf,.doc,.docx,.txt" style="display:none" />
+          <div class="upload-box" style="margin: 8px 0 18px;">
+            <button class="btn secondary" id="chooseFileBtn">Pilih File</button>
+            <span class="file-name" id="cpFileName">${escapeHtml(state.cp.fileName || 'Belum ada file CP')}</span>
+          </div>
+
+          <div class="field" style="margin-bottom: 12px;">
+            <label>Teks CP / paste</label>
+            <textarea id="cpTextInput" placeholder="Tempel atau salin teks Capaian Pembelajaran di sini...">${escapeHtml(state.cp.rawText || '')}</textarea>
+          </div>
+          <div class="stage-actions">
+            <button class="btn secondary" id="saveCpBtn">Simpan Teks CP</button>
+            <button class="btn success" id="analyzeCpBtn">Analisis CP</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Elemen</th>
+                  <th>Kompetensi</th>
+                  <th>Konten Materi</th>
+                  <th>Kata Kerja Operasional</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="0">
+                    <td><input data-field="elemen" value="${escapeHtml(row.elemen || '')}" /></td>
+                    <td><textarea data-field="kompetensi">${escapeHtml(row.kompetensi || '')}</textarea></td>
+                    <td><textarea data-field="materi">${escapeHtml(row.materi || '')}</textarea></td>
+                    <td><textarea data-field="kataKerja">${escapeHtml(row.kataKerja || '')}</textarea></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="0" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="0" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageTujuanPembelajaran() {
+        const rows = state.docs.tp.length ? state.docs.tp : [{
+          id: uid('tp'),
+          kelas: state.profile.kelas,
+          fase: getCurrentPhase(),
+          kompetensi: 'Peserta didik mampu menjelaskan konsep dasar dengan tepat.',
+          materi: 'Materi inti sesuai CP',
+          skala: 'Unistruktural → Relasional'
+        }];
+
+        return `
+          <div class="section-head">
+            <h3>2. Tujuan Pembelajaran (TP)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="1" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">TP disusun per kelas, menggunakan Taksonomi SOLO dan berdasarkan CP yang sudah dianalisis.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kelas</th>
+                  <th>Fase</th>
+                  <th>Kompetensi</th>
+                  <th>Lingkup Materi</th>
+                  <th>Taksonomi SOLO</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="1">
+                    <td><input data-field="kelas" value="${escapeHtml(row.kelas || '')}" /></td>
+                    <td><input data-field="fase" value="${escapeHtml(row.fase || getCurrentPhase())}" /></td>
+                    <td><textarea data-field="kompetensi">${escapeHtml(row.kompetensi || '')}</textarea></td>
+                    <td><textarea data-field="materi">${escapeHtml(row.materi || '')}</textarea></td>
+                    <td><textarea data-field="skala">${escapeHtml(row.skala || '')}</textarea></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="1" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="1" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageAtp() {
+        const rows = state.docs.atp.length ? state.docs.atp : [{
+          id: uid('atp'), urutan: 1, tp: 'TP 1', materi: 'Materi inti', jp: 2, minggu: 1, metode: 'Diskusi, latihan, refleksi'
+        }];
+        return `
+          <div class="section-head">
+            <h3>3. Alur Tujuan Pembelajaran (ATP)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="2" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">ATP harus berurutan dan alokasi JP konsisten dengan Prota serta Promes.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Urutan</th>
+                  <th>TP</th>
+                  <th>Materi</th>
+                  <th>JP</th>
+                  <th>Minggu</th>
+                  <th>Metode</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="2">
+                    <td><input data-field="urutan" value="${escapeHtml(row.urutan || '')}" /></td>
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="materi">${escapeHtml(row.materi || '')}</textarea></td>
+                    <td><input data-field="jp" value="${escapeHtml(row.jp || '')}" /></td>
+                    <td><input data-field="minggu" value="${escapeHtml(row.minggu || '')}" /></td>
+                    <td><textarea data-field="metode">${escapeHtml(row.metode || '')}</textarea></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="2" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="2" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageProta() {
+        const rows = state.docs.prota.length ? state.docs.prota : [{
+          id: uid('prota'), semester: state.profile.semester || 'Ganjil', bulan: 'Juli', tp: 'TP 1', materi: 'Materi inti', alokasi: '2 JP'
+        }];
+        return `
+          <div class="section-head">
+            <h3>4. Program Tahunan (Prota)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="3" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Sebaran TP dan materi per semester. JP pada Prota harus menguatkan ATP dan Promes.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Semester</th>
+                  <th>Bulan</th>
+                  <th>TP</th>
+                  <th>Materi</th>
+                  <th>Alokasi</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="3">
+                    <td><input data-field="semester" value="${escapeHtml(row.semester || '')}" /></td>
+                    <td><input data-field="bulan" value="${escapeHtml(row.bulan || '')}" /></td>
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="materi">${escapeHtml(row.materi || '')}</textarea></td>
+                    <td><input data-field="alokasi" value="${escapeHtml(row.alokasi || '')}" /></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="3" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="3" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stagePromes() {
+        const rows = state.docs.promes.length ? state.docs.promes : [{
+          id: uid('promes'), bulan: 'Juli', minggu: '1', tp: 'TP 1', materi: 'Materi inti', libur: '0', assesmen: '1'
+        }];
+        return `
+          <div class="section-head">
+            <h3>5. Program Semester (Promes)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="4" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Promes mencakup minggu efektif, hari libur, dan hari asesmen.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Bulan</th>
+                  <th>Minggu</th>
+                  <th>TP</th>
+                  <th>Materi</th>
+                  <th>Libur</th>
+                  <th>Asesmen</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="4">
+                    <td><input data-field="bulan" value="${escapeHtml(row.bulan || '')}" /></td>
+                    <td><input data-field="minggu" value="${escapeHtml(row.minggu || '')}" /></td>
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="materi">${escapeHtml(row.materi || '')}</textarea></td>
+                    <td><input data-field="libur" value="${escapeHtml(row.libur || '')}" /></td>
+                    <td><input data-field="assesmen" value="${escapeHtml(row.assesmen || '')}" /></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="4" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="4" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageDiagnostik() {
+        const rows = state.docs.diagnostik.length ? state.docs.diagnostik : [{
+          id: uid('diag'), jenis: 'Kognitif', tujuan: 'Mengetahui kesiapan awal peserta didik', soal: 'Soal diagnostik kognitif', rubrik: 'Rubrik penilaian 1-4', kelompok: 'Kelompok A, B, C'
+        }];
+        return `
+          <div class="section-head">
+            <h3>6. Asesmen Diagnostik</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="5" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Meliputi asesmen kognitif dan non-kognitif serta pengelompokan peserta didik.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jenis</th>
+                  <th>Tujuan</th>
+                  <th>Soal</th>
+                  <th>Rubrik</th>
+                  <th>Pengelompokan</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="5">
+                    <td><input data-field="jenis" value="${escapeHtml(row.jenis || '')}" /></td>
+                    <td><textarea data-field="tujuan">${escapeHtml(row.tujuan || '')}</textarea></td>
+                    <td><textarea data-field="soal">${escapeHtml(row.soal || '')}</textarea></td>
+                    <td><textarea data-field="rubrik">${escapeHtml(row.rubrik || '')}</textarea></td>
+                    <td><textarea data-field="kelompok">${escapeHtml(row.kelompok || '')}</textarea></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="5" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="5" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageFormatif() {
+        const rows = state.docs.kisiFormatif.length ? state.docs.kisiFormatif : [{
+          id: uid('kfmt'), tp: 'TP 1', indikator: 'Peserta didik mampu menjelaskan konsep dasar', teknik: 'Tertulis', instrumen: 'Lembar kerja', bobot: '10%'
+        }];
+        return `
+          <div class="section-head">
+            <h3>7. Kisi-kisi Asesmen Formatif</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="6" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Setiap TP harus masuk dalam kisi-kisi formatif, dengan indikator, teknik, dan instrumen.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TP</th>
+                  <th>Indikator</th>
+                  <th>Teknik</th>
+                  <th>Instrumen</th>
+                  <th>Bobot</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="6">
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="indikator">${escapeHtml(row.indikator || '')}</textarea></td>
+                    <td><input data-field="teknik" value="${escapeHtml(row.teknik || '')}" /></td>
+                    <td><textarea data-field="instrumen">${escapeHtml(row.instrumen || '')}</textarea></td>
+                    <td><input data-field="bobot" value="${escapeHtml(row.bobot || '')}" /></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="6" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="6" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageSts() {
+        const rows = state.docs.kisiSts.length ? state.docs.kisiSts : [{
+          id: uid('ksts'), tp: 'TP 1', indikator: 'Peserta didik mampu menjelaskan konsep', level: 'C2', bentuk: 'Pilihan ganda', nomor: '1,2', cakupan: 'Setengah semester'
+        }];
+        return `
+          <div class="section-head">
+            <h3>8. Kisi-kisi Sumatif Tengah Semester (STS)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="7" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Cakupan TP, indikator, level kognitif, bentuk soal, serta nomor soal harus jelas.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TP</th>
+                  <th>Indikator</th>
+                  <th>Level</th>
+                  <th>Bentuk Soal</th>
+                  <th>Nomor Soal</th>
+                  <th>Cakupan</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="7">
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="indikator">${escapeHtml(row.indikator || '')}</textarea></td>
+                    <td><input data-field="level" value="${escapeHtml(row.level || '')}" /></td>
+                    <td><input data-field="bentuk" value="${escapeHtml(row.bentuk || '')}" /></td>
+                    <td><input data-field="nomor" value="${escapeHtml(row.nomor || '')}" /></td>
+                    <td><input data-field="cakupan" value="${escapeHtml(row.cakupan || '')}" /></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="7" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="7" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageSas() {
+        const rows = state.docs.kisiSas.length ? state.docs.kisiSas : [{
+          id: uid('ksas'), tp: 'TP 1-TP N', indikator: 'Peserta didik mampu menyelesaikan masalah secara utuh', level: 'C3', bentuk: 'Esai', nomor: '1-5', cakupan: 'Seluruh semester'
+        }];
+        return `
+          <div class="section-head">
+            <h3>9. Kisi-kisi Sumatif Akhir Semester (SAS)</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="8" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Kisi-kisi SAS mencakup seluruh semester sesuai Kompetensi dan materi pada CP.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TP</th>
+                  <th>Indikator</th>
+                  <th>Level</th>
+                  <th>Bentuk Soal</th>
+                  <th>Nomor Soal</th>
+                  <th>Cakupan</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="8">
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="indikator">${escapeHtml(row.indikator || '')}</textarea></td>
+                    <td><input data-field="level" value="${escapeHtml(row.level || '')}" /></td>
+                    <td><input data-field="bentuk" value="${escapeHtml(row.bentuk || '')}" /></td>
+                    <td><input data-field="nomor" value="${escapeHtml(row.nomor || '')}" /></td>
+                    <td><input data-field="cakupan" value="${escapeHtml(row.cakupan || '')}" /></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="8" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="8" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function stageRpp() {
+        const rows = state.docs.rpp.length ? state.docs.rpp : [{
+          id: uid('rpp'), tp: 'TP 1', tujuan: 'Peserta didik mampu memahami konsep dasar', pendekatan: 'Pembelajaran Mendalam', kegiatan: 'Memahami, mengaplikasi, merefleksi', asesmen: 'Observasi, produk, refleksi', profil: 'Bernalar kritis, kreatif'
+        }];
+        return `
+          <div class="section-head">
+            <h3>10. RPP Pembelajaran Mendalam</h3>
+            <div class="stage-actions">
+              <button class="btn primary" data-stage="9" data-action="generate-stage">Generate</button>
+            </div>
+          </div>
+          <div class="notice">Per TP dibuat RPP pendekatan Pembelajaran Mendalam dengan pengalaman belajar sesuai fase dan usia SD.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TP</th>
+                  <th>Tujuan</th>
+                  <th>Pendekatan</th>
+                  <th>Kegiatan</th>
+                  <th>Asesmen</th>
+                  <th>Profil Lulusan</th>
+                  <th style="width:170px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row) => `
+                  <tr data-row-id="${row.id}" data-stage="9">
+                    <td><textarea data-field="tp">${escapeHtml(row.tp || '')}</textarea></td>
+                    <td><textarea data-field="tujuan">${escapeHtml(row.tujuan || '')}</textarea></td>
+                    <td><textarea data-field="pendekatan">${escapeHtml(row.pendekatan || '')}</textarea></td>
+                    <td><textarea data-field="kegiatan">${escapeHtml(row.kegiatan || '')}</textarea></td>
+                    <td><textarea data-field="asesmen">${escapeHtml(row.asesmen || '')}</textarea></td>
+                    <td><textarea data-field="profil">${escapeHtml(row.profil || '')}</textarea></td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn secondary" data-action="row-regenerate" data-stage="9" data-row-id="${row.id}">Regenerate</button>
+                        <button class="btn danger" data-action="row-delete" data-stage="9" data-row-id="${row.id}">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function bindProfileActions() {
+        document.getElementById('saveProfileBtn')?.addEventListener('click', () => {
+          state.profile.nama = document.getElementById('profileNama')?.value || '';
+          state.profile.nip = document.getElementById('profileNip')?.value || '';
+          state.profile.sekolah = document.getElementById('profileSekolah')?.value || '';
+          state.profile.kepalaSekolah = document.getElementById('profileKepala')?.value || '';
+          state.profile.tahunAjaran = document.getElementById('profileTahun')?.value || '2025/2026';
+          state.profile.semester = document.getElementById('profileSemester')?.value || 'Ganjil';
+          state.profile.kelas = document.getElementById('profileKelas')?.value || '3';
+          state.profile.mataPelajaran = document.getElementById('profileMapel')?.value || 'Matematika';
+          state.profile.fase = document.getElementById('profileFase')?.value || 'B';
+          saveState();
+          render();
+        });
+
+        document.getElementById('validateBtn')?.addEventListener('click', validateAll);
+        document.getElementById('printBtn')?.addEventListener('click', printDocument);
+        document.getElementById('exportCsvBtn')?.addEventListener('click', exportCsvForCurrentStage);
+
+        document.getElementById('backupBtn')?.addEventListener('click', exportBackupJson);
+        document.getElementById('importBtn')?.addEventListener('click', triggerImportJson);
+        document.getElementById('generateAllBtn')?.addEventListener('click', generateAllStages);
+
+        document.getElementById('uploadCpBtn')?.addEventListener('click', () => document.getElementById('cpFileInput')?.click());
+        document.getElementById('chooseFileBtn')?.addEventListener('click', () => document.getElementById('cpFileInput')?.click());
+        document.getElementById('cpFileInput')?.addEventListener('change', async (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          await readUploadedCp(file);
+        });
+        document.getElementById('saveCpBtn')?.addEventListener('click', () => {
+          const text = document.getElementById('cpTextInput')?.value || '';
+          state.cp.rawText = text;
+          state.cp.fileName = state.cp.fileName || 'CP_Teks';
+          saveState();
+          showNotice('cpNotice', 'success', 'Teks CP berhasil disimpan.');
+        });
+        document.getElementById('analyzeCpBtn')?.addEventListener('click', () => generateStage(0));
+      }
+
+      function bindStageEvents() {
+        const generateButtons = document.querySelectorAll('[data-action="generate-stage"]');
+        generateButtons.forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const stage = Number(btn.dataset.stage);
+            await generateStage(stage);
+          });
+        });
+
+        document.querySelectorAll('[data-action="row-regenerate"]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const stage = Number(btn.dataset.stage);
+            const rowId = btn.dataset.rowId;
+            await regenerateRow(stage, rowId);
+          });
+        });
+
+        document.querySelectorAll('[data-action="row-delete"]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const stage = Number(btn.dataset.stage);
+            const rowId = btn.dataset.rowId;
+            deleteRow(stage, rowId);
+          });
+        });
+
+        document.querySelectorAll('tr[data-row-id]').forEach((row) => {
+          row.querySelectorAll('[data-field]').forEach((input) => {
+            input.addEventListener('input', () => {
+              const stage = Number(row.dataset.stage);
+              const rowId = row.dataset.rowId;
+              updateTableRow(stage, rowId, input.dataset.field, input.value);
+            });
+          });
+        });
+      }
+
+      function showNotice(id, type, message) {
+        const node = document.getElementById(id);
+        if (!node) return;
+        node.className = `notice ${type}`;
+        node.textContent = message;
+      }
+
+      function readUploadedCp(file) {
+        return new Promise(async (resolve) => {
+          try {
+            const fileName = file.name;
+            let text = '';
+            const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(fileName);
+            const isDocx = /\.docx?$/i.test(fileName) || file.type.includes('word');
+            if (file.type === 'text/plain' || /\.txt$/i.test(fileName)) {
+              text = await file.text();
+            } else if (isPdf) {
+              text = await extractPdfText(file);
+            } else if (isDocx) {
+              text = await extractDocxText(file);
+            } else {
+              text = await file.text();
+            }
+
+            state.cp.fileName = fileName;
+            state.cp.rawText = text;
+            state.cp.uploadedAt = new Date().toISOString();
+            saveState();
+            document.getElementById('cpFileName').textContent = fileName;
+            document.getElementById('cpTextInput').value = text;
+            showNotice('cpNotice', 'success', `File ${fileName} berhasil dibaca.`);
+            resolve(true);
+          } catch (error) {
+            console.error(error);
+            showNotice('cpNotice', 'error', 'Gagal membaca file. Silakan tempel teks CP atau coba file lain.');
+            resolve(false);
+          }
+        });
+      }
+
+      async function extractPdfText(file) {
+        if (window.pdfjsLib && window.pdfjsLib.getDocument) {
+          try {
+            const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            let content = '';
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              const page = await pdf.getPage(pageNum);
+              const textContent = await page.getTextContent();
+              content += textContent.items.map(item => item.str).join(' ') + '\n';
+            }
+            return content;
+          } catch (error) {
+            console.warn('PDF.js gagal:', error);
+          }
+        }
+        return `File PDF diterima: ${file.name}\n[Catatan: PDF.js tidak tersedia di CDN. Silakan tempel teks atau gunakan file DOCX/TXT.]`;
+      }
+
+      async function extractDocxText(file) {
+        if (window.mammoth && typeof window.mammoth.extractRawText === 'function') {
+          try {
+            const result = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+            return result.value || '';
+          } catch (error) {
+            console.warn('Mammoth gagal:', error);
+          }
+        }
+        return `File DOCX diterima: ${file.name}\n[Catatan: Mammoth tidak tersedia di CDN. Silakan tempel teks atau gunakan file PDF/TXT.]`;
+      }
+
+      async function generateStage(stageIndex) {
+        const stageName = STAGES[stageIndex];
+        const noticeEl = document.getElementById('cpNotice');
+
+        try {
+          const rows = await callAnthropic(stageIndex, { trigger: 'stage-generation' });
+          state.docs[DOC_KEYS[stageIndex]] = Array.isArray(rows) ? rows : [];
+          state.stageStatus[stageIndex] = 'done';
+          if (stageIndex + 1 < STAGES.length) {
+            if (state.stageStatus[stageIndex + 1] === 'locked' || !state.stageStatus[stageIndex + 1]) {
+              state.stageStatus[stageIndex + 1] = 'ready';
+            }
+          }
+          saveState();
+          render();
+          if (noticeEl) showNotice('cpNotice', 'success', `${stageName} berhasil dibuat.`);
+        } catch (error) {
+          console.error(error);
+          if (noticeEl) showNotice('cpNotice', 'error', `Gagal membuat ${stageName}. ${error.message}`);
+        }
+      }
+
+      async function regenerateRow(stageIndex, rowId) {
+        const key = DOC_KEYS[stageIndex];
+        const rows = state.docs[key] || [];
+        const target = rows.find((r) => r.id === rowId) || {};
+        try {
+          const generated = await callAnthropic(stageIndex, { rowContext: target, trigger: 'row-regenerate' });
+          const next = Array.isArray(generated) ? generated : [generated];
+          if (!next.length) return;
+          const merged = rows.map((row) => row.id === rowId ? { ...row, ...next[0] } : row);
+          state.docs[key] = merged;
+          saveState();
+          render();
+        } catch (error) {
+          console.error(error);
+          alert('Regenerate gagal. Coba lagi.');
+        }
+      }
+
+      function deleteRow(stageIndex, rowId) {
+        const key = DOC_KEYS[stageIndex];
+        state.docs[key] = (state.docs[key] || []).filter((row) => row.id !== rowId);
+        saveState();
+        render();
+      }
+
+      function updateTableRow(stageIndex, rowId, field, value) {
+        const key = DOC_KEYS[stageIndex];
+        const rows = state.docs[key] || [];
+        const found = rows.find((row) => row.id === rowId);
+        if (!found) return;
+        found[field] = value;
+        saveState();
+      }
+
+      async function generateAllStages() {
+        for (let i = 0; i < STAGES.length; i++) {
+          if (i === 0 || stageUnlocked(i)) {
+            await generateStage(i);
+          }
+        }
+      }
+
+      function exportBackupJson() {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'backup-administrasi-guru.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function triggerImportJson() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = async () => {
+          const file = input.files[0];
+          if (!file) return;
+          try {
+            const json = JSON.parse(await file.text());
+            state = mergeDeep(structuredClone(defaultState), json);
+            saveState();
+            render();
+          } catch (error) {
+            console.error(error);
+            alert('Backup JSON tidak valid.');
+          }
+        };
+        input.click();
+      }
+
+      function printDocument() {
+        const school = state.profile.sekolah || 'Sekolah';
+        const headHtml = `
+          <div class="print-header">
+            <div class="school">${escapeHtml(school)}</div>
+            <div class="sign-box">Kepala Sekolah<br>${escapeHtml(state.profile.kepalaSekolah || '____________')}</div>
+          </div>
+        `;
+        const original = document.body.innerHTML;
+        document.body.innerHTML = headHtml + document.getElementById('workspace').innerHTML;
+        window.print();
+        document.body.innerHTML = original;
+        render();
+      }
+
+      function exportCsvForCurrentStage() {
+        const key = DOC_KEYS[currentStage];
+        const rows = state.docs[key] || [];
+        if (!rows.length) {
+          alert('Tidak ada data untuk diekspor.');
+          return;
+        }
+
+        const headers = Object.keys(rows[0]);
+        const csvRows = [headers.join(',')];
+        rows.forEach((row) => {
+          csvRows.push(headers.map((header) => `"${String(row[header] ?? '').replace(/"/g, '""')}"`).join(','));
+        });
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${STAGES[currentStage].toLowerCase().replace(/\s+/g, '-')}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function sumJp(rows) {
+        return rows.reduce((total, row) => total + (Number(row.jp) || 0), 0);
+      }
+
+      function progressStatus() {
+        const total = STAGES.length;
+        const done = Object.values(state.stageStatus).filter((item) => item === 'done' || item === 'success').length;
+        return `${done}/${total}`;
+      }
+
+      function validateAll() {
+        const warnings = [];
+        const errors = [];
+
+        const atp = state.docs.atp || [];
+        const prota = state.docs.prota || [];
+        const promes = state.docs.promes || [];
+        const tp = state.docs.tp || [];
+        const form = state.docs.kisiFormatif || [];
+        const sts = state.docs.kisiSts || [];
+        const sas = state.docs.kisiSas || [];
+
+        const tpList = tp.map((row) => String(row.kompetensi || row.id || '').trim()).filter(Boolean);
+        const formatifMatches = form.filter((row) => {
+          const txt = String(row.tp || '').toLowerCase();
+          return tpList.some((tpItem) => txt.includes(tpItem.toLowerCase()) || tpItem.toLowerCase().includes(txt));
+        });
+
+        const atpJp = atp.reduce((sum, row) => sum + (Number(row.jp) || 0), 0);
+        const protaJp = prota.reduce((sum, row) => {
+          const val = String(row.alokasi || '').match(/\d+/);
+          return sum + (val ? Number(val[0]) : 0);
+        }, 0);
+        if (atpJp !== protaJp) errors.push(`JP ATP (${atpJp}) tidak sama dengan Prota (${protaJp}).`);
+
+        const effectiveWeeks = Number(state.settings.weeksEffective || 18);
+        const holidayWeeks = Number(state.settings.weeksHoliday || 2);
+        if (effectiveWeeks + holidayWeeks > 52) warnings.push('Total minggu efektif + libur melebihi 52 minggu.');
+
+        const weeksUsed = promes.reduce((sum, row) => sum + (Number(row.minggu) || 0), 0);
+        if (weeksUsed > effectiveWeeks) warnings.push(`Minggu pada Promes (${weeksUsed}) melebihi minggu efektif (${effectiveWeeks}).`);
+
+        if (form.length && formatifMatches.length !== form.length) warnings.push('Belum semua TP muncul di kisi-kisi formatif.');
+        if (sts.length && !sts.some((row) => row.tp)) warnings.push('Kisi-kisi STS belum lengkap.');
+        if (sas.length && !sas.some((row) => row.tp)) warnings.push('Kisi-kisi SAS belum lengkap.');
+
+        const finalMessage = errors.length
+          ? errors.join(' | ')
+          : warnings.length
+            ? warnings.join(' | ')
+            : 'Semua validasi lolos. Semua persyaratan administratif terpenuhi.';
+
+        const notice = document.getElementById('cpNotice');
+        if (notice) showNotice('cpNotice', errors.length ? 'error' : warnings.length ? 'warning' : 'success', finalMessage);
+      }
+
+      async function callAnthropic(stageIndex, meta = {}) {
+        const currentText = state.cp.rawText || 'CP belum diunggah. Gunakan asumsi default sesuai Kurikulum Merdeka.';
+        const previousContext = {};
+        for (let i = 0; i < stageIndex; i++) {
+          previousContext[STAGES[i]] = state.docs[DOC_KEYS[i]] || [];
+        }
+
+        const stagePrompt = {
+          0: 'Tugas: analisis CP. Keluaran harus array objek JSON dengan keys: elemen, kompetensi, materi, kataKerja. Gunakan bahasa Indonesia baku. Jangan mengarang CP. Belum ada data? pakai asumsi yang jelas dan aman.',
+          1: 'Tugas: susun TP per kelas. Keluaran array objek dengan keys: kelas, fase, kompetensi, materi, skala. Gunakan Taksonomi SOLO dan semua turunan harus berasal dari CP.',
+          2: 'Tugas: susun ATP. Keluaran array objek dengan keys: urutan, tp, materi, jp, minggu, metode. Urut logis dan konsisten dengan yang sebelumnya.',
+          3: 'Tugas: susun Prota. Keluaran array objek dengan keys: semester, bulan, tp, materi, alokasi.',
+          4: 'Tugas: susun Promes. Keluaran array objek dengan keys: bulan, minggu, tp, materi, libur, assesmen.',
+          5: 'Tugas: susun asesmen diagnostik. Keluaran array objek dengan keys: jenis, tujuan, soal, rubrik, kelompok.',
+          6: 'Tugas: susun kisi-kisi formatif. Keluaran array objek dengan keys: tp, indikator, teknik, instrumen, bobot.',
+          7: 'Tugas: susun kisi-kisi STS. Keluaran array objek dengan keys: tp, indikator, level, bentuk, nomor, cakupan.',
+          8: 'Tugas: susun kisi-kisi SAS. Keluaran array objek dengan keys: tp, indikator, level, bentuk, nomor, cakungan.',
+          9: 'Tugas: susun RPP Pembelajaran Mendalam. Keluaran array objek dengan keys: tp, tujuan, pendekatan, kegiatan, asesmen, profil.'
+        }[stageIndex];
+
+        const profileText = `Profil: Nama=${state.profile.nama || 'Guru'}, NIP=${state.profile.nip || 'Belum diisi'}, Sekolah=${state.profile.sekolah || 'Belum diisi'}, Kepala=${state.profile.kepalaSekolah || 'Belum diisi'}, Kelas=${state.profile.kelas || '3'}, Mapel=${state.profile.mataPelajaran || 'Matematika'}, Fase=${getCurrentPhase()}, Tahun Ajaran=${state.profile.tahunAjaran || '2025/2026'}, Semester=${state.profile.semester || 'Ganjil'}`;
+
+        const prompt = `
+${profileText}
+
+CP yang diunggah:
+${currentText}
+
+Konteks tahapan sebelumnya:
+${JSON.stringify(previousContext)}
+
+${stagePrompt}
+
+Instruksi:
+- Gunakan Bahasa Indonesia baku.
+- Jangan mengarang CP; semua turunan harus berangkat dari CP yang diberikan.
+- Keluaran HARUS JSON murni, array objek, tanpa teks pembuka, tanpa markdown, tanpa komentar.
+- Jika data tidak cukup, gunakan asumsi default yang rasional dan jelas. Jangan menjelaskan dalam teks pembuka; sisipkan catatan bila perlu dalam field yang relevan.
+- Kumpulkan hasil sesuai struktur yang diminta.
+- Jangan membuat output yang bukan array JSON.
+
+Meta request: ${JSON.stringify(meta)}
+        `;
+
+        if (!state.settings.apiKey && !ANTHROPIC_API_KEY) {
+          return getDemoOutput(stageIndex, meta.rowContext || null);
+        }
+
+        const apiKey = state.settings.apiKey || ANTHROPIC_API_KEY;
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: ANTHROPIC_MODEL,
+            max_tokens: 2000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error(`Anthropic API gagal (${res.status}).`);
+        }
+
+        const json = await res.json();
+        const text = json.content?.[0]?.text || '';
+        const parsed = parseJsonText(text);
+        if (!parsed) {
+          throw new Error('Respons Anthropic bukan JSON valid');
+        }
+        return parsed;
+      }
+
+      function parseJsonText(rawText) {
+        let text = String(rawText || '').trim();
+        if (!text) return null;
+        if (text.startsWith('```')) {
+          text = text.replace(/^```[a-zA-Z]*\s*/, '').replace(/```\s*$/, '').trim();
+        }
+        try {
+          return JSON.parse(text);
+        } catch (error) {
+          const start = text.indexOf('[');
+          const end = text.lastIndexOf(']');
+          if (start >= 0 && end > start) {
+            try {
+              return JSON.parse(text.slice(start, end + 1));
+            } catch (err) {
+              const startObj = text.indexOf('{');
+              const endObj = text.lastIndexOf('}');
+              if (startObj >= 0 && endObj > startObj) {
+                return JSON.parse(text.slice(startObj, endObj + 1));
+              }
+            }
+          }
+          return null;
+        }
+      }
+
+      function getDemoOutput(stageIndex, rowContext = null) {
+        const demo = {
+          0: [{ elemen: 'Elemen CP', kompetensi: 'Peserta didik mampu menjelaskan dan menerapkan konsep dasar secara tepat.', materi: 'Konsep dasar materi sesuai CP', kataKerja: 'menjelaskan, menerapkan, membandingkan' }],
+          1: [{ kelas: state.profile.kelas || '3', fase: getCurrentPhase(), kompetensi: 'Peserta didik mampu menjelaskan konsep dasar dengan tepat.', materi: 'Materi inti sesuai CP', skala: 'Unistruktural → Relasional' }],
+          2: [{ urutan: 1, tp: 'TP 1', materi: 'Materi inti', jp: 2, minggu: 1, metode: 'Diskusi, tanya jawab, latihan' }],
+          3: [{ semester: state.profile.semester || 'Ganjil', bulan: 'Juli', tp: 'TP 1', materi: 'Materi inti', alokasi: '2 JP' }],
+          4: [{ bulan: 'Juli', minggu: '1', tp: 'TP 1', materi: 'Materi inti', libur: '0', assesmen: '1' }],
+          5: [{ jenis: 'Kognitif', tujuan: 'Menilai kesiapan awal belajar peserta didik', soal: 'Jelaskan konsep dasar yang kamu pahami.', rubrik: 'Skor 1-4', kelompok: 'Kelompok A, B, C' }],
+          6: [{ tp: 'TP 1', indikator: 'Peserta didik mampu menjelaskan konsep dasar', teknik: 'Tertulis', instrumen: 'Lembar kerja', bobot: '10%' }],
+          7: [{ tp: 'TP 1', indikator: 'Peserta didik mampu menjelaskan konsep dasar', level: 'C2', bentuk: 'Pilihan ganda', nomor: '1-2', cakupan: 'Setengah semester' }],
+          8: [{ tp: 'TP 1 - TP N', indikator: 'Peserta didik mampu menyelesaikan masalah dengan benar', level: 'C3', bentuk: 'Esai', nomor: '1-5', cakupan: 'Seluruh semester' }],
+          9: [{ tp: 'TP 1', tujuan: 'Peserta didik mampu memahami konsep dasar dengan benar', pendekatan: 'Pembelajaran Mendalam', kegiatan: 'Memahami, mengaplikasi, merefleksi', asesmen: 'Observasi, produk, refleksi', profil: 'Bernalar kritis dan kreatif' }]
+        };
+
+        const base = demo[stageIndex] || [];
+        if (rowContext) {
+          return Array.isArray(base) ? [{ ...base[0], ...rowContext }] : [{ ...rowContext }];
+        }
+        return base;
+      }
+
+      // Initialize app
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem(STORAGE_KEY)) {
+          saveState();
+        }
+        render();
+      });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  </body>
+</html>
